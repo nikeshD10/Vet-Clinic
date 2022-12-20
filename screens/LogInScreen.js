@@ -1,11 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import MainNavigator from "./navigations/MainNavigator";
 
-const App = () => {
-  return <MainNavigator />;
+const LogInScreen = () => {
+  return (
+    <View>
+      <Text>LogInScreen</Text>
+    </View>
+  );
 };
 
-export default App;
+export default LogInScreen;
 
 const styles = StyleSheet.create({});

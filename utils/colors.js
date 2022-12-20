@@ -1,0 +1,16 @@
+export const colors = {
+  white: "#fff",
+  darkBlue: "#252250",
+  darkBlue: "#384182",
+  lightPurple: "#8F87D2",
+  orange: "#F8A41D",
+  grayBlue: "#OC5D7B",
+  blue: "#5871CD",
+  darkPurple: "#7238C9",
+  red: "#E3463F",
+  lightBlue: "#89A1EF",
+  lightPink: "#FFB7FF",
+  purplePink: "#C879FF",
+  purpleBlue: "#826AED",
+  yellow: "#FFDE00",
+};
