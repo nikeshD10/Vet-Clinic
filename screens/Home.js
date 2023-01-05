@@ -114,6 +114,7 @@ const Home = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={"dark-content"} backgroundColor="skyblue" />
+
       <View onLayout={onLayout}>
         <TopSection></TopSection>
         <MiddleSection></MiddleSection>
@@ -156,6 +157,10 @@ const styles = StyleSheet.create({
     backgroundColor: "orange",
     padding: spacing.md,
     flex: 1,
+  },
+  image: {
+    flex: 1,
+    justifyContent: "center",
   },
   img: {
     width: layoutSize.sm,
