@@ -7,6 +7,21 @@ import DoctorListScreen from "../screens/DoctorListScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import Ionicon from "react-native-vector-icons/Ionicons";
 import { radius, spacing } from "../utils/sizes";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+// const MessageStack = createNativeStackNavigator();
+
+// const MessageNavigator = () => {
+//   return (
+//     <MessageStack.Navigator>
+//       <MessageStack.Screen
+//         name="Message"
+//         component={MessageScreen}
+//         options={{ headerShown: false }}
+//       />
+//     </MessageStack.Navigator>
+//   );
+// };
 
 const Tab = createBottomTabNavigator();
 
@@ -35,6 +50,7 @@ const TabNavigator = () => {
         tabBarInactiveTintColor: "gray",
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBar,
+        tabBarHideOnKeyboard: true,
       })}
     >
       <Tab.Screen
@@ -45,7 +61,7 @@ const TabNavigator = () => {
       <Tab.Screen
         name="Message"
         component={MessageScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, tabBarStyle: { display: "none" } }}
       />
       <Tab.Screen
         name="DoctorList"
