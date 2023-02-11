@@ -7,21 +7,6 @@ import DoctorListScreen from "../screens/DoctorListScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import Ionicon from "react-native-vector-icons/Ionicons";
 import { radius, spacing } from "../utils/sizes";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-// const MessageStack = createNativeStackNavigator();
-
-// const MessageNavigator = () => {
-//   return (
-//     <MessageStack.Navigator>
-//       <MessageStack.Screen
-//         name="Message"
-//         component={MessageScreen}
-//         options={{ headerShown: false }}
-//       />
-//     </MessageStack.Navigator>
-//   );
-// };
 
 const Tab = createBottomTabNavigator();
 
@@ -80,21 +65,12 @@ const TabNavigator = () => {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    padding: 0,
-    left: spacing.sm,
-    right: spacing.sm,
-    bottom: spacing.sm,
+    margin: 8,
     height: 56,
+    bordetColor: "transparent",
     borderRadius: radius.cornerElipsed,
     backgroundColor: "#6F5CE2",
-    borderTopColor: "transparent",
     shadowColor: "black",
-    shadowOffsetX: {
-      height: 6,
-      width: 0,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
     elevation: 3,
   },
 });

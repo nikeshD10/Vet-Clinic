@@ -15,4 +15,7 @@ export const colors = {
   yellow: "#FFDE00",
   gray: "#ACB2B2",
   black: "#010101",
+  grayLightWhite: "#f0f0f0",
+  grayDarkWhite: "#ddd9de",
+  pink: "#52006A",
 };

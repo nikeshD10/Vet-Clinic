@@ -223,13 +223,19 @@ const MessageScreen = () => {
               item={item}
               user={userData.userId}
               senderId={item.senderId}
+              // getDisplayTime={messageTime}
               senderName={item.senderName}
               message={item.message}
             />
           );
         }}
       />
-      <ChatInput />
+      <ChatInput
+        reply={reply}
+        isLeft={isLeft}
+        closeReply={closeReply}
+        username={"username"}
+      />
     </View>
   );
 };
