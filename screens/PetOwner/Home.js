@@ -140,9 +140,9 @@ const Home = ({ theme, navigation }) => {
   };
 
   useMemo(() => {
+    if (!user) return;
     (async () => await getOnGoingPetAdmission())();
     (async () => await getDoctors())();
-
     setIsLoading(false);
   }, [user]);
 

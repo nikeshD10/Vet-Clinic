@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "FinalProject",
+    "name": "Vet Clinic",
     "slug": "FinalProject",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,6 +17,7 @@
       "bundleIdentifier": "com.finalproject.vetapp"
     },
     "android": {
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -33,6 +34,12 @@
     },
     "plugins": [
       [
+        "expo-updates",
+        {
+          "username": "nikeshd10"
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to use your camera"
@@ -41,9 +48,9 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/App Logo.png",
+          "icon": "./assets/icon.png",
           "color": "#fff",
-          "sounds": ["./assets/notification-sound/notification-sound.wav"]
+          "sounds": ["./assets/notification-sound/notificationsound.wav"]
         }
       ]
     ],

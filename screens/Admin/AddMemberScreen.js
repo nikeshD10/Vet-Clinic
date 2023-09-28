@@ -6,7 +6,13 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { Button, TextInput, ActivityIndicator } from "react-native-paper";
 import { auth, db } from "../../firebase";
 import { AuthContext } from "../../services/authContext";
@@ -23,10 +29,10 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { withTheme } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const AddMemberScreen = ({ theme }) => {
+const AddMemberScreen = ({ navigation, theme }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { user } = useContext(AuthContext);
+  const { user, bootstrapAsync } = useContext(AuthContext);
   const [doctor, setDoctor] = useState({
     role: "doctor",
     name: "",
@@ -42,6 +48,12 @@ const AddMemberScreen = ({ theme }) => {
     information: "",
   });
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Add Doctor",
+    });
+  }, [navigation]);
+
   const validateDoctor = () => {
     if (
       doctor.name === "" ||
@@ -49,7 +61,8 @@ const AddMemberScreen = ({ theme }) => {
       doctor.postalCode === "" ||
       doctor.phone === "" ||
       doctor.email === "" ||
-      doctor.tokenPassword === ""
+      doctor.tokenPassword === "" ||
+      doctor.information === ""
     ) {
       setError("Please fill in all fields");
       return false;
@@ -59,13 +72,18 @@ const AddMemberScreen = ({ theme }) => {
     } else if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(doctor.email)
     ) {
-      console.log("Email  : ", doctor.email);
       setError("Please enter a valid email");
       return false;
     } else if (!/^[0-9]{4}-[0-9]{3}$/.test(doctor.postalCode)) {
       setError("Please enter a valid postal code");
       return false;
     } else if (!/^[0-9]+$/.test(doctor.phone)) {
+      setError("Please enter a valid phone number");
+      return false;
+    } else if (doctor.tokenPassword.length < 6) {
+      setError("Token password must be at least 6 characters");
+      return false;
+    } else if (doctor.phone.length < 9 || doctor.phone.length > 9) {
       setError("Please enter a valid phone number");
       return false;
     }
@@ -99,6 +117,7 @@ const AddMemberScreen = ({ theme }) => {
         await updateDoc(docRefUser, {
           clinicId: user.email,
         });
+        await bootstrapAsync();
         setIsLoading(false);
         setDoctor({
           role: "doctor",
@@ -129,6 +148,7 @@ const AddMemberScreen = ({ theme }) => {
         await updateDoc(docRefClinic, {
           members: arrayUnion(doctor.email),
         });
+        await bootstrapAsync();
         setIsLoading(false);
         setDoctor({
           role: "doctor",
@@ -148,7 +168,7 @@ const AddMemberScreen = ({ theme }) => {
     } catch (error) {
       setError("Something went wrong");
       setIsLoading(false);
-      console.log(error);
+      console.log("Add member", error);
     }
   };
 

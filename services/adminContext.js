@@ -54,6 +54,7 @@ export const AdminContextProvider = ({ children }) => {
 
   const updateAdmin = async (data) => {
     const email = auth.currentUser.email;
+    // const email = user?.email;
     dispatch({ type: "SET_LOADING" });
     try {
       const adminCollection = collection(db, "users");
@@ -61,12 +62,13 @@ export const AdminContextProvider = ({ children }) => {
       dispatch({ type: "SET_ADMIN", payload: data });
       await updateDoc(adminDoc, data);
     } catch (error) {
-      console.log(error);
+      console.log("Admin", error);
     }
   };
 
   const updateProfile = async (image) => {
     const email = auth.currentUser.email;
+    // const email = user?.email;
     try {
       const imageUri = image;
       const splitFileName = imageUri.split("/");
@@ -91,12 +93,13 @@ export const AdminContextProvider = ({ children }) => {
         await uploadBytes(storageRef, blob);
         blob.close();
         const url = await getDownloadURL(storageRef);
+        dispatch({ type: "SET_ADMIN", payload: { logo: url } });
         return url;
       } catch (error) {
-        console.log(error);
+        console.log("1", error);
       }
     } catch (error) {
-      console.log(error);
+      console.log("2", error);
     }
   };
 

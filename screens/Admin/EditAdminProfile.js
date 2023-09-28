@@ -1,18 +1,3 @@
-// import { StyleSheet, Text, View } from "react-native";
-// import React from "react";
-
-// const EditAdminProfile = () => {
-//   return (
-//     <View>
-//       <Text>EditAdminProfile</Text>
-//     </View>
-//   );
-// };
-
-// export default EditAdminProfile;
-
-// const styles = StyleSheet.create({});
-
 import {
   Image,
   StyleSheet,
@@ -106,7 +91,7 @@ const EditAdminProfile = ({ theme, route, navigation }) => {
       navigation.goBack();
     } catch (error) {
       setImage(null);
-      console.log(error);
+      console.log("Edit", error);
     }
   };
 
@@ -137,161 +122,166 @@ const EditAdminProfile = ({ theme, route, navigation }) => {
   };
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      <View>
-        {isLoading ? (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <ActivityIndicator size="large" color={theme.colors.onAccept} />
-          </View>
-        ) : (
-          <View
-            style={{ paddingBottom: theme.spacing.md, alignItems: "center" }}
-          >
-            <View style={styles.profile}>
-              <TouchableWithoutFeedback onPress={handlePress}>
-                <View style={styles.editableImageView}>
-                  <Image
-                    source={{
-                      uri: !image
-                        ? userData?.logo ||
-                          "https://res.cloudinary.com/dmpfnj9yi/image/upload/v1690509826/profile_pcwgdb.png"
-                        : image,
-                    }}
-                    style={styles.roundImage}
-                  />
+    <>
+      {isLoading ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator size="large" color={theme.colors.onAccept} />
+        </View>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+        >
+          <View>
+            <View
+              style={{ paddingBottom: theme.spacing.md, alignItems: "center" }}
+            >
+              <View style={styles.profile}>
+                <TouchableWithoutFeedback onPress={handlePress}>
+                  <View style={styles.editableImageView}>
+                    <Image
+                      source={{
+                        uri: !image
+                          ? userData?.logo ||
+                            "https://res.cloudinary.com/dmpfnj9yi/image/upload/v1690509826/profile_pcwgdb.png"
+                          : image,
+                      }}
+                      style={styles.roundImage}
+                    />
 
-                  {isPressed && (
-                    <View style={styles.imageOnPress}>
-                      <FontAwesome
-                        name="pencil"
-                        size={theme.sizes.lg}
-                        color="white"
-                        style={{ alignSelf: "center" }}
-                        onPress={pickImage}
-                      />
-                    </View>
-                  )}
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-            <View style={{ minWidth: "100%", padding: theme.spacing.sm }}>
-              <TextInput
-                label="Name"
-                value={userData.name}
-                onChangeText={(text) =>
-                  setUserData((prevUserData) => ({
-                    ...prevUserData,
-                    name: text,
-                  }))
-                }
-                mode="outlined"
-                style={styles.textInput}
-              />
-
-              <TextInput
-                label="Phone Number"
-                value={userData.phone}
-                onChangeText={(phone) =>
-                  setUserData((prevUserData) => ({
-                    ...prevUserData,
-                    phoneNumber: phone,
-                  }))
-                }
-                mode="outlined"
-                style={styles.textInput}
-              />
-
-              <TextInput
-                label="Address"
-                value={userData.address}
-                onChangeText={(address) =>
-                  setUserData((prevUserData) => ({
-                    ...prevUserData,
-                    address: address,
-                  }))
-                }
-                mode="outlined"
-                style={styles.textInput}
-              />
-              <TextInput
-                label="Postal Code"
-                value={userData.postalCode}
-                onChangeText={(code) =>
-                  setUserData((prevUserData) => ({
-                    ...prevUserData,
-                    postalCode: code,
-                  }))
-                }
-                mode="outlined"
-                style={styles.textInput}
-              />
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
+                    {isPressed && (
+                      <View style={styles.imageOnPress}>
+                        <FontAwesome
+                          name="pencil"
+                          size={theme.sizes.lg}
+                          color="white"
+                          style={{ alignSelf: "center" }}
+                          onPress={pickImage}
+                        />
+                      </View>
+                    )}
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+              <View style={{ minWidth: "100%", padding: theme.spacing.sm }}>
                 <TextInput
-                  label="Latitude"
-                  value={userData.gps_coord?.[0] ?? ""}
-                  onChangeText={(lat) =>
+                  label="Name"
+                  value={userData.name}
+                  onChangeText={(text) =>
                     setUserData((prevUserData) => ({
                       ...prevUserData,
-                      gps_coord: [lat, ...prevUserData.gps_coord[1]],
+                      name: text,
                     }))
                   }
                   mode="outlined"
-                  style={[styles.textInput, { width: "45%" }]}
+                  style={styles.textInput}
+                />
+
+                <TextInput
+                  label="Phone Number"
+                  value={userData.phone}
+                  onChangeText={(phone) =>
+                    setUserData((prevUserData) => ({
+                      ...prevUserData,
+                      phoneNumber: phone,
+                    }))
+                  }
+                  mode="outlined"
+                  style={styles.textInput}
+                />
+
+                <TextInput
+                  label="Address"
+                  value={userData.address}
+                  onChangeText={(address) =>
+                    setUserData((prevUserData) => ({
+                      ...prevUserData,
+                      address: address,
+                    }))
+                  }
+                  mode="outlined"
+                  style={styles.textInput}
                 />
                 <TextInput
-                  label="Longitude"
-                  value={userData.gps_coord?.[1] ?? ""}
-                  onChangeText={(long) =>
+                  label="Postal Code"
+                  value={userData.postalCode}
+                  onChangeText={(code) =>
                     setUserData((prevUserData) => ({
                       ...prevUserData,
-                      gps_coord: [...prevUserData.gps_coord[0], long],
+                      postalCode: code,
                     }))
                   }
                   mode="outlined"
-                  style={[styles.textInput, { width: "45%" }]}
+                  style={styles.textInput}
+                />
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <TextInput
+                    label="Latitude"
+                    value={userData.gps_coord?.[0] ?? ""}
+                    onChangeText={(lat) =>
+                      setUserData((prevUserData) => ({
+                        ...prevUserData,
+                        gps_coord: [lat, ...prevUserData.gps_coord[1]],
+                      }))
+                    }
+                    mode="outlined"
+                    style={[styles.textInput, { width: "45%" }]}
+                  />
+                  <TextInput
+                    label="Longitude"
+                    value={userData.gps_coord?.[1] ?? ""}
+                    onChangeText={(long) =>
+                      setUserData((prevUserData) => ({
+                        ...prevUserData,
+                        gps_coord: [...prevUserData.gps_coord[0], long],
+                      }))
+                    }
+                    mode="outlined"
+                    style={[styles.textInput, { width: "45%" }]}
+                  />
+                </View>
+
+                <TextInput
+                  label="Information"
+                  value={userData.information}
+                  onChangeText={(information) =>
+                    setUserData((prevUserData) => ({
+                      ...prevUserData,
+                      information: information,
+                    }))
+                  }
+                  mode="outlined"
+                  style={[
+                    styles.textInput,
+                    { maxHeight: theme.layoutSize.mdSm },
+                  ]}
+                  multiline={true}
                 />
               </View>
 
-              <TextInput
-                label="Information"
-                value={userData.information}
-                onChangeText={(information) =>
-                  setUserData((prevUserData) => ({
-                    ...prevUserData,
-                    information: information,
-                  }))
-                }
-                mode="outlined"
-                style={[styles.textInput, { maxHeight: theme.layoutSize.mdSm }]}
-                multiline={true}
-              />
+              <Button
+                mode="contained"
+                onPress={handleUpdate}
+                style={{
+                  paddingHorizontal: theme.spacing.md,
+                  marginVertical: theme.spacing.lg,
+                }}
+              >
+                Save
+              </Button>
             </View>
-
-            <Button
-              mode="contained"
-              onPress={handleUpdate}
-              style={{
-                paddingHorizontal: theme.spacing.md,
-                marginVertical: theme.spacing.lg,
-              }}
-            >
-              Save
-            </Button>
           </View>
-        )}
-      </View>
-    </ScrollView>
+        </ScrollView>
+      )}
+    </>
   );
 };
 

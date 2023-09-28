@@ -25,7 +25,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { withTheme } from "react-native-paper";
 
 const AddUser = ({ theme, navigation }) => {
-  const { user } = useContext(AuthContext);
+  const { user, bootstrapAsync } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [petOwner, setPetOwner] = useState({
@@ -63,6 +63,12 @@ const AddUser = ({ theme, navigation }) => {
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(petOwner.email)
     ) {
       setError("Please enter a valid email");
+      return false;
+    } else if (petOwner.phone.length < 9 || petOwner.phone.length > 9) {
+      setError("Please enter a valid phone number");
+      return false;
+    } else if (petOwner.tokenPassword.length < 6) {
+      setError("Token password must be greater than 6 character");
       return false;
     }
     setError(null);
@@ -113,6 +119,8 @@ const AddUser = ({ theme, navigation }) => {
           await updateDoc(docRef, {
             clinicId: user?.clinicId,
           });
+
+          await bootstrapAsync();
           setIsLoading(false);
           setPetOwner({
             role: "petOwner",
@@ -136,11 +144,15 @@ const AddUser = ({ theme, navigation }) => {
           );
 
           await setDoc(docRef, { ...petOwner, userID: userRef.user.uid });
+          await setDoc(doc(db, "notifications", petOwner.email), {
+            notifications: [],
+          });
+
           const clinicRef = doc(db, "clinics", user?.clinicId);
           await updateDoc(clinicRef, {
             users: arrayUnion(petOwner.email),
           });
-
+          await bootstrapAsync();
           setIsLoading(false);
           setPetOwner({
             role: "petOwner",
@@ -156,6 +168,7 @@ const AddUser = ({ theme, navigation }) => {
             chats: [],
             deviceId: "",
           });
+          handleBlur();
           navigation.navigate("AddPet", { ownerEmail: petOwner.email });
         }
       }

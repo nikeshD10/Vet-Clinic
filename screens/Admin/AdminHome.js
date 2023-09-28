@@ -66,31 +66,30 @@ const AdminHome = ({ theme, navigation }) => {
   });
 
   const getClinicData = async () => {
-    try {
-      const collectionRef = collection(db, "clinics");
-      const docRef = doc(collectionRef, user?.email);
-      const unsubscribe = onSnapshot(docRef, (doc) => {
-        const data = doc.data();
-        const { users, admissions, members, pets } = data;
-        setData({
-          client: users.length,
-          admission: admissions.length,
-          member: members.length,
-          pet: pets.length,
+    if (!!user) {
+      if (user?.email === undefined) return;
+      try {
+        const collectionRef = collection(db, "clinics");
+        const docRef = doc(collectionRef, user.email);
+        const unsubscribe = onSnapshot(docRef, (doc) => {
+          const data = doc.data();
+          const { users, admissions, members, pets } = data;
+          setData({
+            client: users.length,
+            admission: admissions.length,
+            member: members.length,
+            pet: pets.length,
+          });
         });
-      });
-      return unsubscribe;
-    } catch (error) {
-      console.log(error);
+        return unsubscribe;
+      } catch (error) {
+        console.log("Home", error);
+      }
     }
   };
 
   useEffect(() => {
-    if (!!user) {
-      (async () => {
-        await getClinicData();
-      })();
-    }
+    getClinicData();
   }, [user]);
 
   return (

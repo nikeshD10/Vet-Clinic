@@ -1,30 +1,9 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useEffect, useContext } from "react";
-import { auth } from "../../firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { AuthContext } from "../../services/authContext";
+import React from "react";
 import Lottie from "lottie-react-native";
-import { withTheme } from "react-native-paper";
+import { ActivityIndicator, withTheme } from "react-native-paper";
 
-const LoadingScreen = ({ navigation, theme }) => {
-  // const { user } = useContext(AuthContext);
-  // useEffect(() => {
-  //   console.log(user);
-  //   // const unsubscribe = onAuthStateChanged(auth, async (u) => {
-  //   const unsubscribe = async () => {
-  //     try {
-  //       if (user === null) {
-  //         await new Promise((resolve) => setTimeout(resolve, 3000));
-  //         navigation.navigate("Login");
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   // });
-  //   return unsubscribe;
-  // }, [user]);
-
+const LoadingScreen = ({ theme }) => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -54,6 +33,7 @@ const LoadingScreen = ({ navigation, theme }) => {
         loop
       />
       <Text style={styles.header}>Vet Clinic</Text>
+      {/* <ActivityIndicator size="large" color={theme.colors.secondary} /> */}
     </View>
   );
 };

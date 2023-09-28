@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableWithoutFeedback,
   Keyboard,
+  ScrollView,
 } from "react-native";
 import React, { useEffect } from "react";
 import { db } from "../../firebase";
@@ -19,6 +20,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import OngoingAdmissionCard from "./components/OngoingAdmissionCard";
 import ClosedAdmissionCard from "./components/ClosedAdmissionCard";
 import { Ionicons } from "@expo/vector-icons";
+import { Pressable } from "react-native";
 
 const DoctorHome = ({ navigation, theme }) => {
   const { user } = useContext(AuthContext);
@@ -40,27 +42,24 @@ const DoctorHome = ({ navigation, theme }) => {
       const q = query(
         collection(db, "admissions"),
         where("clinicId", "==", user?.clinicId),
-        where("status", "==", "ongoing")
+        where("status", "==", "ongoing"),
+        orderBy("admission_date", "desc"),
+        limit(4)
       );
 
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const results = [];
+        let count = 0;
         querySnapshot.forEach((doc) => {
-          results.push(doc.data());
+          count++;
+          if (count <= 4) {
+            results.push(doc.data());
+          }
         });
         setOngoingResults(results);
       });
       return unsubscribe;
-
-      // const querySnapshot = await getDocs(q);
-      // const results = [];
-      // querySnapshot.forEach((doc) => {
-      //   results.push(doc.data());
-      // });
-      // setOngoingResults(results);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   const [closedAdmissions, setClosedAdmissions] = useState([]);
@@ -70,27 +69,33 @@ const DoctorHome = ({ navigation, theme }) => {
       const q = query(
         collection(db, "admissions"),
         where("clinicId", "==", user?.clinicId),
-        where("status", "==", "closed")
+        where("status", "==", "closed"),
+        orderBy("discharge_date", "desc"),
+        limit(4)
       );
 
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const results = [];
+        let count = 0;
         querySnapshot.forEach((doc) => {
-          results.push(doc.data());
+          count++;
+          if (count <= 4) {
+            results.push(doc.data());
+          }
         });
         setClosedAdmissions(results);
       });
       return unsubscribe;
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
-    (async () => {
-      await getOngoingAdmissions();
-      await getRecentClosedAdmissions();
-    })();
+    if (user?.clinicId) {
+      (async () => {
+        await getOngoingAdmissions();
+        await getRecentClosedAdmissions();
+      })();
+    }
   }, []);
 
   const styles = StyleSheet.create({
@@ -99,8 +104,14 @@ const DoctorHome = ({ navigation, theme }) => {
       ...theme.fonts.medium,
     },
     ongoingAdmissionContainer: {
-      flex: 1,
+      // flex: 1,
       justifyContent: "center",
+    },
+    viewAll: {
+      textAlign: "center",
+      ...theme.fonts.regular,
+      color: theme.colors.primary,
+      marginBottom: theme.spacing.md,
     },
   });
 
@@ -128,122 +139,110 @@ const DoctorHome = ({ navigation, theme }) => {
     setSearchQuery("");
     setSearchResults([]);
     setShowOverLayer(false);
+    Keyboard.dismiss();
   };
 
-  // const handleSearch = async (value) => {
-  //   setSearchQuery(value);
-  //   if (value.length > 0) {
-  //     console.log(value.length);
-  //     try {
-  //       const q = query(
-  //         collection(db, "users"),
-  //         where("clinicId", "==", user?.clinicId),
-  //         where("role", "==", "petOwner"),
-  //         where("email", ">=", value)
-  //       );
-  //       const querySnapshot = await getDocs(q);
-  //       const results = [];
-  //       querySnapshot.forEach((doc) => {
-  //         results.push(doc.data());
-  //       });
-  //       setShowOverLayer(true);
-  //       setSearchResults(results);
-  //     } catch (error) {
-  //       setShowOverLayer(false);
-  //       setSearchQuery("");
-  //       setSearchResults([]);
-  //     }
-  //   } else {
-  //     console.log("empty");
-  //     setShowOverLayer(false);
-  //     setSearchQuery("");
-  //     setSearchResults([]);
-  //   }
-  // };
-
   const handleSearch = (value) => {
+    if (value.length === 0) {
+      setShowOverLayer(false);
+    }
     setSearchQuery(value);
   };
 
-  useEffect(() => {
+  const searchPetOwner = async () => {
     if (searchQuery.length > 0) {
-      const unsubscribe = onSnapshot(
-        query(
-          collection(db, "users"),
-          where("clinicId", "==", user?.clinicId),
-          where("role", "==", "petOwner"),
-          where("email", ">=", searchQuery),
-          orderBy("email"),
-          limit(10)
-        ),
-        (querySnapshot) => {
-          const results = [];
-          querySnapshot.forEach((doc) => {
-            results.push(doc.data());
-          });
-          setShowOverLayer(true);
-          setSearchResults(results);
-        }
+      const q = query(
+        collection(db, "users"),
+        where("clinicId", "==", user?.clinicId),
+        where("role", "==", "petOwner"),
+        where("email", ">=", searchQuery),
+        where("email", "<=", searchQuery + "\uf8ff"),
+        orderBy("email"),
+        limit(10)
       );
-      return unsubscribe;
+      const results = [];
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        results.push(doc.data());
+      });
+      setShowOverLayer(true);
+      return results;
     } else {
       setShowOverLayer(false);
       setSearchResults([]);
     }
+  };
+
+  useEffect(() => {
+    (async () => {
+      const results = await searchPetOwner();
+      setSearchResults(results);
+    })();
   }, [searchQuery]);
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={{ flex: 1 }}>
-        <Searchbar
-          placeholder="Search Pet Owner"
-          onChangeText={handleSearch}
-          value={searchQuery}
-          style={{ borderRadius: 0, position: "relative" }}
-          onClearIconPress={onClearSearch}
-          // onFocus={() => setShowOverLayer(true)}
-          // onBlur={() => setShowOverLayer(false)}
-        />
-        {showOverLayer && (
-          <View
-            style={{
-              height: "100%",
-              backgroundColor: theme.colors.secondary,
-            }}
+    <View style={{ flex: 1 }}>
+      <Searchbar
+        placeholder="Search Pet Owner"
+        onChangeText={handleSearch}
+        value={searchQuery}
+        style={{ borderRadius: 0, position: "relative" }}
+        onIconPress={onClearSearch}
+        onClearIconPress={onClearSearch}
+        onKeyPress={({ nativeEvent }) => {
+          if (nativeEvent.key === "Enter") {
+            Keyboard.dismiss();
+          }
+        }}
+      />
+      {showOverLayer && (
+        <View
+          style={{
+            height: "100%",
+            backgroundColor: theme.colors.secondary,
+            paddingBottom: theme.spacing.xxxl,
+          }}
+        >
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item) => item.email}
+            renderItem={({ item }) => (
+              <PetOwnerCard key={item.email} item={item} />
+            )}
+            keyboardShouldPersistTaps="always"
+            initialNumToRender={10}
+            contentContainerStyle={{ paddingBottom: theme.spacing.xxxl }}
+          />
+        </View>
+      )}
+      <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.xxxl }}>
+        <Text style={styles.ongoingAdmissionHeader}>Ongoing Admissions</Text>
+        {ongoingResults.map((item, index) => {
+          if (index >= 3) return;
+          return <OngoingAdmissionCard key={item.admissionId} item={item} />;
+        })}
+        {ongoingResults.length > 3 && (
+          <Pressable
+            onPress={() => navigation.navigate("OngoingAdmissionList")}
           >
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.email}
-              renderItem={({ item }) => (
-                <PetOwnerCard key={item.email} item={item} />
-              )}
-              keyboardShouldPersistTaps="always"
-            />
-          </View>
+            <Text style={styles.viewAll}>view all</Text>
+          </Pressable>
         )}
-        <View style={styles.ongoingAdmissionContainer}>
-          <Text style={styles.ongoingAdmissionHeader}>Ongoing Admissions</Text>
-          <FlatList
-            data={ongoingResults}
-            keyExtractor={(item) => item.admissionId}
-            renderItem={({ item }) => (
-              <OngoingAdmissionCard key={item.admissionId} item={item} />
-            )}
-          />
-        </View>
 
-        <View style={styles.ongoingAdmissionContainer}>
-          <Text style={styles.ongoingAdmissionHeader}>Recent Admissions</Text>
-          <FlatList
-            data={closedAdmissions}
-            keyExtractor={(item) => item.admissionId}
-            renderItem={({ item }) => (
-              <ClosedAdmissionCard key={item.admissionId} item={item} />
-            )}
-          />
-        </View>
-      </View>
-    </TouchableWithoutFeedback>
+        <Text style={styles.ongoingAdmissionHeader}>
+          Recent Closed Admissions
+        </Text>
+        {closedAdmissions.map((item, index) => {
+          if (index >= 3) return;
+          return <ClosedAdmissionCard key={item.admissionId} item={item} />;
+        })}
+        {closedAdmissions.length > 3 && (
+          <Pressable onPress={() => navigation.navigate("ClosedAdmissionList")}>
+            <Text style={styles.viewAll}>view all</Text>
+          </Pressable>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 

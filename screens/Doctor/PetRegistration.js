@@ -12,6 +12,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect } from "react";
 import PetOwnerInfoCard from "./components/PetOwnerInfoCard";
+import { useLayoutEffect } from "react";
 
 const PetRegistration = ({ theme, route }) => {
   const { user } = useContext(AuthContext);
@@ -84,6 +85,13 @@ const PetRegistration = ({ theme, route }) => {
     route.params = {};
   };
 
+  // useLayoutEffect(() => {
+  //   return () => {
+  //     // on unmount
+  //     resetRouteParams();
+  //   };
+  // }, []);
+
   const handlePetRegistration = async () => {
     setIsLoading(true);
     try {
@@ -120,10 +128,12 @@ const PetRegistration = ({ theme, route }) => {
           profile: "",
           admissions: [],
         });
+        resetRouteParams();
         setImage(null);
         setError(null);
+        setSearchQuery("");
+        setSelectedPetType("Select Pet Type");
         handleBlur();
-        resetRouteParams();
       } else {
         throw new Error("Please choose a photo");
       }

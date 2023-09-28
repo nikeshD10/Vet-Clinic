@@ -42,7 +42,6 @@ const AdmitPet = ({ route, navigation, theme }) => {
   const [openCondition, setOpenCondition] = useState(false);
   const [conditionValue, setConditionValue] = useState(null);
   const [conditions, setConditions] = useState([
-    { label: "Select Condition", value: null },
     { label: "Bad", value: "bad" },
     { label: "Good", value: "good" },
     { label: "Moderate", value: "moderate" },
@@ -93,7 +92,6 @@ const AdmitPet = ({ route, navigation, theme }) => {
 
   const styles = StyleSheet.create({
     indicatorContainer: {
-      flex: 1,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -123,7 +121,7 @@ const AdmitPet = ({ route, navigation, theme }) => {
       }}
       style={styles.container}
     >
-      <View>
+      <View style={{ flex: 1 }}>
         {isLoading ? (
           <View style={styles.indicatorContainer}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -171,6 +169,7 @@ const AdmitPet = ({ route, navigation, theme }) => {
                 setItems={setConditions}
                 onChangeValue={handleSelectCondition}
                 theme="DARK"
+                placeholder="Select Condition"
                 mode="BADGE"
               />
             </View>

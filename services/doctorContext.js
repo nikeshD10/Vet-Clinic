@@ -90,6 +90,7 @@ export const DoctorContextProvider = ({ children }) => {
         await uploadBytes(storageRef, blob);
         blob.close();
         const url = await getDownloadURL(storageRef);
+        dispatch({ type: "SET_DOCTOR", payload: { profile: url } });
         return url;
       } catch (error) {
         console.log(error);

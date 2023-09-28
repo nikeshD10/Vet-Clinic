@@ -154,27 +154,6 @@ const AdminProfile = ({ theme }) => {
             }}
           >
             <View style={styles.centeredView}>
-              {/* <View style={styles.modalView}>
-                <Text style={theme.fonts.medium}>Logout of your account?</Text>
-                <Button
-                  buttonColor={theme.colors.tertiary}
-                  onPress={handleLogout}
-                  style={styles.buttonStyle}
-                  labelStyle={{ color: theme.colors.white }}
-                >
-                  Logout
-                </Button>
-                <Button
-                  mode="outlined"
-                  style={styles.buttonStyle}
-                  labelStyle={{ color: theme.colors.tertiary }}
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                  }}
-                >
-                  Cancel
-                </Button>
-              </View> */}
               {isSigningOut ? (
                 <ActivityIndicator size="large" color={theme.colors.tertiary} />
               ) : (
@@ -272,14 +251,14 @@ const AdminProfile = ({ theme }) => {
               <Button
                 mode="contained"
                 style={{ marginVertical: theme.spacing.sm }}
-                onPress={() => navigation.navigate("EditProfile")}
+                onPress={() => navigation.navigate("EditAdminProfile")}
               >
                 Edit Profile
               </Button>
               <Button
                 mode="contained"
                 style={{ marginVertical: theme.spacing.sm }}
-                onPress={() => navigation.navigate("ChangePassword")}
+                onPress={() => navigation.navigate("ChangeAdminPassword")}
               >
                 Change Password
               </Button>

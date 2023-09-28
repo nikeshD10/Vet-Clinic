@@ -24,7 +24,9 @@ const OngoingAdmissionCard = ({ item, theme }) => {
   };
 
   useEffect(() => {
-    getPet();
+    if (item?.petId) {
+      getPet();
+    }
   }, []);
 
   const styles = StyleSheet.create({

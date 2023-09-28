@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, Image } from "react-native";
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import { StyleSheet, Text, View, Image, Modal } from "react-native";
+import React, { useState, useEffect, useLayoutEffect, useContext } from "react";
 import { db } from "../../../firebase";
 import {
   getDoc,
@@ -9,12 +9,18 @@ import {
   where,
   query,
   onSnapshot,
+  updateDoc,
+  arrayRemove,
+  deleteDoc,
 } from "firebase/firestore";
 import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { withTheme } from "react-native-paper";
+import { withTheme, Button, ActivityIndicator } from "react-native-paper";
+import { AuthContext } from "../../../services/authContext";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const PetCard = ({ item, theme }) => {
+  const { user } = useContext(AuthContext);
   const navigation = useNavigation();
   const [pet, setPet] = useState({});
   const [admissionId, setAdmissionId] = useState(null);
@@ -62,6 +68,35 @@ const PetCard = ({ item, theme }) => {
       height: theme.sizes.lg,
       width: theme.sizes.lg,
     },
+    modalView: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: theme.spacing.md,
+    },
+    modalCenteredView: {
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: theme.spacing.md,
+      backgroundColor: theme.colors.white,
+      borderRadius: theme.radius.hard,
+      elevation: theme.elevation.md,
+    },
+
+    button: {
+      marginBottom: theme.spacing.vsm,
+    },
+    deleteModalButton: {
+      marginBottom: theme.spacing.sm,
+      width: theme.layoutSize.lg,
+    },
+    modalHeaderText: {
+      ...theme.fonts.medium,
+      color: theme.colors.tertiary,
+      marginBottom: theme.spacing.sm,
+      textAlign: "center",
+    },
   });
 
   const getPet = async () => {
@@ -101,34 +136,178 @@ const PetCard = ({ item, theme }) => {
       (async () => await getPet())();
       (async () => await isPetAdmitted())();
     }
-  }, []);
+  }, [item]);
+
+  const [deleting, setDeleting] = useState(false);
+
+  const [editDeleteModalVisible, setEditDeleteModalVisible] = useState(false);
+
+  const [confirmDeleteModalVisible, setConfirmDeleteModalVisible] =
+    useState(false);
+
+  const handleEdit = () => {
+    setEditDeleteModalVisible(false);
+    // navigation.navigate("EditUser", { userId: client });
+  };
+
+  const handleDelete = () => {
+    setConfirmDeleteModalVisible(true);
+  };
+
+  const handleContainerPress = () => {
+    setEditDeleteModalVisible(false);
+    navigation.navigate("PetDetail", {
+      petId: pet.petId,
+      admissionId: admissionId,
+    });
+  };
+
+  const handleDeleteModalCancelPress = () => {
+    setConfirmDeleteModalVisible(false);
+    setEditDeleteModalVisible(false);
+  };
+
+  const handleDeleteModalDeletePress = async () => {
+    await deletePet();
+    setConfirmDeleteModalVisible(false);
+  };
+
+  const [pressed, setPressed] = useState(false);
+
+  const deletePet = async () => {
+    setDeleting(true);
+    try {
+      const clinicDoc = doc(db, "clinics", user?.email);
+      await updateDoc(clinicDoc, {
+        pets: arrayRemove(item),
+      });
+
+      const ownerDoc = doc(db, "users", pet?.ownerId);
+      await updateDoc(ownerDoc, {
+        pets: arrayRemove(item),
+      });
+
+      const docRef = doc(db, "pets", item);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const admissions = docSnap.data()?.admissions;
+        if (admissions.length > 0) {
+          admissions.forEach(async (item) => {
+            const admissionDocRef = doc(db, "admissions", item);
+            await deleteDoc(admissionDocRef);
+          });
+        } else {
+          console.log("No admission");
+        }
+      }
+
+      await deleteDoc(docRef);
+    } catch (error) {
+      console.log(error);
+    }
+    setDeleting(false);
+  };
 
   return (
-    <Pressable
-      onPress={() =>
-        navigation.navigate("PetDetail", {
-          petId: pet.petId,
-          admissionId: admissionId,
-        })
-      }
-    >
-      <View style={styles.container}>
-        <View style={styles.detailContainer}>
-          <Text style={styles.textStyles}>
-            Name {"   "}: {pet?.name}
-          </Text>
-          <Text>
-            Age {"        "}: {pet?.age}
-          </Text>
-          <Text>
-            Height {"   "}: {pet?.height} ft
-          </Text>
-          <Text>
-            Weight {"  "}: {pet?.weight} kg
-          </Text>
+    <Pressable style={[styles.container, pressed && { opacity: 0.5 }]}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={confirmDeleteModalVisible}
+        onRequestClose={() => {
+          setConfirmDeleteModalVisible(!confirmDeleteModalVisible);
+        }}
+        style={{ position: "absolute" }}
+      >
+        <View style={styles.modalView}>
+          {deleting ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          ) : (
+            <View style={styles.modalCenteredView}>
+              <Text style={styles.modalHeaderText}>
+                {" "}
+                Are you sure you want to delete user account?{" "}
+              </Text>
+
+              <Button
+                onPress={handleDeleteModalDeletePress}
+                mode="contained"
+                buttonColor={theme.colors.error}
+                style={styles.deleteModalButton}
+              >
+                Delete
+              </Button>
+
+              <Button
+                onPress={handleDeleteModalCancelPress}
+                mode="outlined"
+                style={styles.deleteModalButton}
+                textColor={theme.colors.error}
+              >
+                Cancel
+              </Button>
+            </View>
+          )}
         </View>
-        {pet?.profile && (
-          <Image source={{ uri: pet.profile }} style={styles.profile} />
+      </Modal>
+
+      <Pressable
+        onPress={handleContainerPress}
+        style={styles.detailContainer}
+        onPressIn={() => setPressed(true)}
+        onPressOut={() => setPressed(false)}
+      >
+        <Text style={styles.textStyles}>
+          Name {"   "}: {pet?.name}
+        </Text>
+        <Text>
+          Age {"        "}: {pet?.age}
+        </Text>
+        <Text>
+          Height {"   "}: {pet?.height} ft
+        </Text>
+        <Text>
+          Weight {"  "}: {pet?.weight} kg
+        </Text>
+      </Pressable>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        {editDeleteModalVisible ? (
+          <View style={styles.centeredView}>
+            <Button
+              onPress={handleEdit}
+              mode="contained"
+              style={styles.button}
+              buttonColor={theme.colors.primary}
+              contentStyle={{ width: theme.layoutSize.mdSm }}
+            >
+              Edit
+            </Button>
+            <Button
+              onPress={handleDelete}
+              mode="contained"
+              style={styles.button}
+              buttonColor={theme.colors.error}
+              contentStyle={{ width: theme.layoutSize.mdSm }}
+            >
+              Delete
+            </Button>
+          </View>
+        ) : (
+          pet?.profile && (
+            <Image source={{ uri: pet.profile }} style={styles.profile} />
+          )
+        )}
+
+        {user?.role === "admin" && (
+          <Pressable
+            onPress={() => setEditDeleteModalVisible(!editDeleteModalVisible)}
+          >
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              size={24}
+              color={theme.colors.darkBlue}
+            />
+          </Pressable>
         )}
       </View>
     </Pressable>

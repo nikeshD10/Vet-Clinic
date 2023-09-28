@@ -56,11 +56,6 @@ const ClientCard = ({ client, theme }) => {
           return;
         }
 
-        const clinicRef = doc(collection(db, "clinics"), clientInfo?.clinicId);
-        await updateDoc(clinicRef, {
-          users: arrayRemove(client),
-        });
-
         // delete pets related to user
         const { pets, chats } = clientInfo;
         if (pets.length > 0) {
@@ -103,6 +98,11 @@ const ClientCard = ({ client, theme }) => {
             });
           });
         }
+
+        const clinicRef = doc(collection(db, "clinics"), clientInfo?.clinicId);
+        await updateDoc(clinicRef, {
+          users: arrayRemove(client),
+        });
 
         const collectionRef = collection(db, "users");
         const docRef = doc(collectionRef, client);

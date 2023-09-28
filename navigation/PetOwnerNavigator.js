@@ -34,49 +34,49 @@ import { auth, db } from "../firebase";
 //prettier-ignore
 import { getDoc, updateDoc, doc, collection, setDoc, arrayUnion } from "firebase/firestore";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
 
-async function registerForPushNotificationsAsync() {
-  try {
-    let token;
-    if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
-        return;
-      }
-      token = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig.extra.eas.projectId,
-      });
-    } else {
-      alert("Must use physical device for Push Notifications");
-    }
+// async function registerForPushNotificationsAsync() {
+//   try {
+//     let token;
+//     if (Device.isDevice) {
+//       const { status: existingStatus } =
+//         await Notifications.getPermissionsAsync();
+//       let finalStatus = existingStatus;
+//       if (existingStatus !== "granted") {
+//         const { status } = await Notifications.requestPermissionsAsync();
+//         finalStatus = status;
+//       }
+//       if (finalStatus !== "granted") {
+//         alert("Failed to get push token for push notification!");
+//         return;
+//       }
+//       token = await Notifications.getExpoPushTokenAsync({
+//         projectId: Constants.expoConfig.extra.eas.projectId,
+//       });
+//     } else {
+//       alert("Must use physical device for Push Notifications");
+//     }
 
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-    return token;
-  } catch (error) {
-    console.log(error);
-  }
-}
+//     if (Platform.OS === "android") {
+//       Notifications.setNotificationChannelAsync("default", {
+//         name: "default",
+//         importance: Notifications.AndroidImportance.MAX,
+//         vibrationPattern: [0, 250, 250, 250],
+//         lightColor: "#FF231F7C",
+//       });
+//     }
+//     return token;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
 
 const Tab = createBottomTabNavigator();
 
@@ -139,89 +139,87 @@ const PetOwnerNavigator = () => {
   const responseListener = useRef();
   const navigation = useNavigation();
 
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
-  const notificationListener = useRef();
+  // const [expoPushToken, setExpoPushToken] = useState("");
+  // const [notification, setNotification] = useState(false);
+  // const notificationListener = useRef();
 
-  const assignTokenToUser = async (token) => {
-    try {
-      if (auth.currentUser === null) return;
-      const email = auth.currentUser.email;
-      const docRef = doc(db, "users", email);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        if (docSnap.data().token === token) return;
-        await updateDoc(docRef, {
-          deviceId: token,
-        });
-      } else {
-        console.log("No such document!");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const assignTokenToUser = async (token) => {
+  //   try {
+  //     if (auth.currentUser === null) return;
+  //     const email = auth.currentUser.email;
+  //     const docRef = doc(db, "users", email);
+  //     const docSnap = await getDoc(docRef);
+  //     if (docSnap.exists()) {
+  //       if (docSnap.data().token === token) return;
+  //       await updateDoc(docRef, {
+  //         deviceId: token,
+  //       });
+  //     } else {
+  //       console.log("No such document!");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   useEffect(() => {
     if (!!user) {
-      if (user?.role === "petOwner") {
-        registerForPushNotificationsAsync().then(async (token) => {
-          setExpoPushToken(token.data), await assignTokenToUser(token.data);
+      // if (user?.role === "petOwner") {
+      // registerForPushNotificationsAsync().then(async (token) => {
+      //   setExpoPushToken(token.data), await assignTokenToUser(token.data);
+      // });
+
+      responseListener.current =
+        Notifications.addNotificationResponseReceivedListener((response) => {
+          navigation.navigate("Notification");
         });
 
-        responseListener.current =
-          Notifications.addNotificationResponseReceivedListener((response) => {
-            navigation.navigate("Notification");
-          });
+      // notificationListener.current =
+      //   Notifications.addNotificationReceivedListener(
+      //     async (notification) => {
+      //       try {
+      //         const content = notification.request.content;
+      //         const { data, body, title } = content;
+      //         const identifier = notification.request.identifier;
+      //         const date = notification.date;
+      //         const collectionRef = collection(db, "notifications");
+      //         const docRef = doc(collectionRef, user?.email);
+      //         const docSnap = await getDoc(docRef);
+      //         if (!docSnap.exists()) {
+      //           await setDoc(docRef, {
+      //             notifications: arrayUnion({
+      //               identifier: identifier,
+      //               data: data,
+      //               body: body,
+      //               title: title,
+      //               date: date,
+      //             }),
+      //           });
+      //         }
 
-        notificationListener.current =
-          Notifications.addNotificationReceivedListener(
-            async (notification) => {
-              try {
-                const content = notification.request.content;
-                const { data, body, title } = content;
-                const identifier = notification.request.identifier;
-                const date = notification.date;
-                const collectionRef = collection(db, "notifications");
-                const docRef = doc(collectionRef, user?.email);
-                const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) {
-                  await setDoc(docRef, {
-                    notifications: arrayUnion({
-                      identifier: identifier,
-                      data: data,
-                      body: body,
-                      title: title,
-                      date: date,
-                    }),
-                  });
-                }
+      //         await updateDoc(docRef, {
+      //           notifications: arrayUnion({
+      //             identifier: identifier,
+      //             data: data,
+      //             body: body,
+      //             title: title,
+      //             date: date,
+      //           }),
+      //         });
+      //         setNotification(notification);
+      //       } catch (error) {
+      //         console.log(error);
+      //       }
+      //     }
+      //   );
 
-                await updateDoc(docRef, {
-                  notifications: arrayUnion({
-                    identifier: identifier,
-                    data: data,
-                    body: body,
-                    title: title,
-                    date: date,
-                  }),
-                });
-                setNotification(notification);
-              } catch (error) {
-                console.log(error);
-              }
-            }
-          );
-
-        return () => {
-          Notifications.removeNotificationSubscription(
-            responseListener.current
-          );
-          Notifications.removeNotificationSubscription(
-            notificationListener.current
-          );
-        };
-      }
+      return () => {
+        Notifications.removeNotificationSubscription(responseListener.current);
+        // Notifications.removeNotificationSubscription(
+        //   notificationListener.current
+        // );
+      };
+      // }
     }
   }, [user]);
 

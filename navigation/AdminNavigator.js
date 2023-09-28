@@ -38,7 +38,7 @@ const TabNavigator = () => {
             iconName = focused ? "add-circle" : "add-circle-outline";
           } else if (route.name === "MemberList") {
             iconName = focused ? "git-network" : "git-network-outline";
-          } else if (route.name === "ProfileStack") {
+          } else if (route.name === "AdminProfileStack") {
             iconName = focused ? "person" : "person-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -62,8 +62,8 @@ const TabNavigator = () => {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="ProfileStack"
-        component={ProfileStackNavigator}
+        name="AdminProfileStack"
+        component={AdminProfileStackNavigator}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>
@@ -121,26 +121,35 @@ const HomeStackNavigator = ({ navigation, route }) => {
   );
 };
 
-const ProfileStack = createNativeStackNavigator();
+const AdminProfileStack = createNativeStackNavigator();
 
-const ProfileStackNavigator = ({ navigation, route }) => {
+const AdminProfileStackNavigator = ({ navigation, route }) => {
   const theme = useTheme();
   const styles = generateStyles(theme);
 
   React.useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if (routeName === "EditProfile" || routeName === "ChangePassword") {
+    if (
+      routeName === "EditAdminProfile" ||
+      routeName === "ChangeAdminPassword"
+    ) {
       navigation.setOptions({ tabBarStyle: { display: "none" } });
     } else {
       navigation.setOptions({ tabBarStyle: styles.tabBar });
     }
   }, [navigation, route]);
   return (
-    <ProfileStack.Navigator initialRouteName="Profile">
-      <ProfileStack.Screen name="Profile" component={AdminProfile} />
-      <ProfileStack.Screen name="EditProfile" component={EditAdminProfile} />
-      <ProfileStack.Screen name="ChangePassword" component={ChangePassword} />
-    </ProfileStack.Navigator>
+    <AdminProfileStack.Navigator initialRouteName="AdminProfile">
+      <AdminProfileStack.Screen name="AdminProfile" component={AdminProfile} />
+      <AdminProfileStack.Screen
+        name="EditAdminProfile"
+        component={EditAdminProfile}
+      />
+      <AdminProfileStack.Screen
+        name="ChangeAdminPassword"
+        component={ChangePassword}
+      />
+    </AdminProfileStack.Navigator>
   );
 };
 

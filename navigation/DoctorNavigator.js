@@ -18,6 +18,8 @@ import ChatScreen from "../screens/Message/ChatScreen";
 import EditDoctorProfile from "../screens/Doctor/EditDoctorProfile";
 import ChangePassword from "../screens/common/ChangePassword";
 import { withTheme, useTheme } from "react-native-paper";
+import OngoingAdmissionList from "../screens/Doctor/OngoingAdmissionList";
+import ClosedAdmissionList from "../screens/Doctor/ClosedAdmissionList";
 
 const Tab = createBottomTabNavigator();
 
@@ -34,7 +36,7 @@ const DoctorNavigator = ({ theme }) => {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "AddPetOwner") {
             iconName = focused ? "person-add" : "person-add-outline";
-          } else if (route.name === "ProfileStack") {
+          } else if (route.name === "DoctorProfileStack") {
             iconName = focused ? "person" : "person-outline";
           } else if (route.name === "AddPet") {
             iconName = focused ? "paw" : "paw-outline";
@@ -60,8 +62,8 @@ const DoctorNavigator = ({ theme }) => {
         initialParams={{ ownerEmail: "" }}
       />
       <Tab.Screen
-        name="ProfileStack"
-        component={ProfileStackNavigator}
+        name="DoctorProfileStack"
+        component={DoctorProfileStackNavigator}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>
@@ -82,7 +84,9 @@ const DoctorHomeStackNavigator = ({ navigation, route }) => {
       routeName === "Chat" ||
       routeName === "AdmitPet" ||
       routeName === "PetDetail" ||
-      routeName === "History"
+      routeName === "History" ||
+      routeName === "OngoingAdmissionList" ||
+      routeName === "ClosedAdmissionList"
     ) {
       navigation.setOptions({ tabBarStyle: { display: "none" } });
     } else {
@@ -98,30 +102,50 @@ const DoctorHomeStackNavigator = ({ navigation, route }) => {
       <Stack.Screen name="History" component={HistoryAdmission} />
       <Stack.Screen name="Message" component={MessageScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />
+      <Stack.Screen
+        name="OngoingAdmissionList"
+        component={OngoingAdmissionList}
+      />
+      <Stack.Screen
+        name="ClosedAdmissionList"
+        component={ClosedAdmissionList}
+      />
     </Stack.Navigator>
   );
 };
 
-const ProfileStack = createNativeStackNavigator();
+const DoctorProfileStack = createNativeStackNavigator();
 
-const ProfileStackNavigator = ({ navigation, route }) => {
+const DoctorProfileStackNavigator = ({ navigation, route }) => {
   const theme = useTheme();
   const styles = generateStyles(theme);
 
   React.useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if (routeName === "EditProfile" || routeName === "ChangePassword") {
+    if (
+      routeName === "EditDoctorProfile" ||
+      routeName === "ChangeDoctorPassword"
+    ) {
       navigation.setOptions({ tabBarStyle: { display: "none" } });
     } else {
       navigation.setOptions({ tabBarStyle: styles.tabBar });
     }
   }, [navigation, route]);
   return (
-    <ProfileStack.Navigator initialRouteName="Profile">
-      <ProfileStack.Screen name="Profile" component={DoctorProfile} />
-      <ProfileStack.Screen name="EditProfile" component={EditDoctorProfile} />
-      <ProfileStack.Screen name="ChangePassword" component={ChangePassword} />
-    </ProfileStack.Navigator>
+    <DoctorProfileStack.Navigator initialRouteName="DoctorProfile">
+      <DoctorProfileStack.Screen
+        name="DoctorProfile"
+        component={DoctorProfile}
+      />
+      <DoctorProfileStack.Screen
+        name="EditDoctorProfile"
+        component={EditDoctorProfile}
+      />
+      <DoctorProfileStack.Screen
+        name="ChangeDoctorPassword"
+        component={ChangePassword}
+      />
+    </DoctorProfileStack.Navigator>
   );
 };
 

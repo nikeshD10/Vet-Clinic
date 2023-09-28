@@ -83,7 +83,7 @@ const EditDoctorProfile = ({ theme, route, navigation }) => {
     try {
       if (image) {
         const url = await updateProfile(image, userData.email);
-        await updateUser({ ...userData, logo: url });
+        await updateUser({ ...userData, profile: url });
       } else {
         await updateUser(userData);
       }
@@ -145,7 +145,7 @@ const EditDoctorProfile = ({ theme, route, navigation }) => {
                 <Image
                   source={{
                     uri: !image
-                      ? userData?.logo ||
+                      ? userData?.profile ||
                         "https://res.cloudinary.com/dmpfnj9yi/image/upload/v1690509826/profile_pcwgdb.png"
                       : image,
                   }}

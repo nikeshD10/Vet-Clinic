@@ -96,6 +96,7 @@ const PetOwnerCard = ({ item, theme }) => {
 
         <Button
           mode="contained"
+          disabled={item.pets.length === 0}
           onPress={buttonPress}
           style={{ margin: theme.spacing.mdSm }}
           labelStyle={{ fontSize: theme.sizes.mdSm }}

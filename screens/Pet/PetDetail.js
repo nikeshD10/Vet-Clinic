@@ -26,16 +26,16 @@ const PetDetail = ({ route, theme }) => {
       if (docSnap.exists()) {
         const unsubscribe = onSnapshot(docRef, (doc) => {
           setPetInfo(doc.data());
-          const admissions = doc.data().admissions;
+          const admissions = doc.data()?.admissions;
           if (!admissionId) {
             setHistoryAdmissions(admissions);
           } else {
             setHistoryAdmissions(
-              admissions.filter((item) => item !== admissionId)
+              admissions?.filter((item) => item !== admissionId)
             );
           }
         });
-        return unsubscribe;
+        return () => unsubscribe();
       } else {
         console.log("No such document!");
       }
@@ -57,7 +57,7 @@ const PetDetail = ({ route, theme }) => {
       querySnapshot.forEach((doc) => {
         const admissionId = doc.data().admissionId;
         setHistoryAdmissions(
-          historyAdmissions.filter((item) => item !== admissionId)
+          historyAdmissions?.filter((item) => item !== admissionId)
         );
         navigation.setParams({ admissionId: admissionId });
       });
@@ -128,7 +128,8 @@ const PetDetail = ({ route, theme }) => {
       alignItems: "center",
     },
     profileContainerImage: {
-      resizeMode: "contain",
+      // resizeMode: "contain",
+      aspectRatio: 1,
       width: "100%",
       height: theme.layoutSize.lg,
       borderWidth: 2,

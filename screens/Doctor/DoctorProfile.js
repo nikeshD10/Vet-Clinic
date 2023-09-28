@@ -155,28 +155,6 @@ const DoctorProfile = ({ theme }) => {
             }}
           >
             <View style={styles.centeredView}>
-              {/* <View style={styles.modalView}>
-                <Text style={theme.fonts.medium}>Logout of your account?</Text>
-                <Button
-                  buttonColor={theme.colors.tertiary}
-                  onPress={handleLogout}
-                  style={styles.buttonStyle}
-                  labelStyle={{ color: theme.colors.white }}
-                >
-                  Logout
-                </Button>
-                <Button
-                  mode="outlined"
-                  style={styles.buttonStyle}
-                  labelStyle={{ color: theme.colors.tertiary }}
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                  }}
-                >
-                  Cancel
-                </Button>
-              </View> */}
-
               {isSigningOut ? (
                 <ActivityIndicator size="large" color={theme.colors.tertiary} />
               ) : (
@@ -215,9 +193,9 @@ const DoctorProfile = ({ theme }) => {
             <View style={{ alignItems: "center" }}>
               <Image
                 source={{
-                  uri: u.profile
-                    ? u.profile
-                    : "https://res.cloudinary.com/dmpfnj9yi/image/upload/v1690509826/profile_pcwgdb.png",
+                  uri:
+                    u.profile ||
+                    "https://res.cloudinary.com/dmpfnj9yi/image/upload/v1690509826/profile_pcwgdb.png",
                 }}
                 style={styles.profile}
               />
@@ -263,14 +241,14 @@ const DoctorProfile = ({ theme }) => {
               <Button
                 mode="contained"
                 style={{ marginVertical: theme.spacing.sm }}
-                onPress={() => navigation.navigate("EditProfile")}
+                onPress={() => navigation.navigate("EditDoctorProfile")}
               >
                 Edit Profile
               </Button>
               <Button
                 mode="contained"
                 style={{ marginVertical: theme.spacing.sm }}
-                onPress={() => navigation.navigate("ChangePassword")}
+                onPress={() => navigation.navigate("ChangeDoctorPassword")}
               >
                 Change Password
               </Button>

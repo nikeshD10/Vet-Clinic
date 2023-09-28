@@ -61,9 +61,11 @@ const ClinicDetail = ({ theme, navigation }) => {
       marginBottom: theme.spacing.sm,
     },
     img: {
-      resizeMode: "contain",
+      resizeMode: "cover",
       width: "100%",
       height: theme.layoutSize.lg,
+      // aspectRatio: 1,
+      alignSelf: "center",
       borderRadius: theme.radius.small,
     },
     detailContainer: {

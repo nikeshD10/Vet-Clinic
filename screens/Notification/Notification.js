@@ -40,7 +40,7 @@ const NotificationScreen = ({ theme }) => {
       const email = auth.currentUser.email;
       const docRef = doc(db, "notifications", email);
       const unsubscribe = onSnapshot(docRef, (doc) => {
-        setNotifications(doc.data().notifications);
+        setNotifications(doc.data()?.notifications);
       });
       return unsubscribe;
     } catch (error) {

@@ -1,25 +1,12 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import React, { createContext, useState, useEffect, useRef } from "react";
 import { auth, db } from "../firebase";
-import {
-  getDoc,
-  updateDoc,
-  onSnapshot,
-  doc,
-  collection,
-  setDoc,
-  arrayUnion,
-} from "firebase/firestore";
-import { Platform } from "react-native";
+//prettier-ignore
+import { getDoc, onSnapshot, doc, collection, setDoc, arrayUnion, updateDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import * as SecureStore from "expo-secure-store";
-import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
+import * as Device from "expo-device";
 import Constants from "expo-constants";
 
 export const AuthContext = createContext();
@@ -76,46 +63,12 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const bootstrapAsync = async () => {
-      setIsLoading(true);
-      try {
-        const credential = await SecureStore.getItemAsync("credential");
-        const parsedCredential = JSON.parse(credential);
-        if (parsedCredential) {
-          const email = parsedCredential.email;
-          const password = parsedCredential.password;
-          const userRef = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-          const collectionRef = collection(db, "users");
-          const docRef = doc(collectionRef, userRef.user.email);
-          const unsubscribe = onSnapshot(docRef, async (doc) => {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            setUser(doc.data());
-            setIsLoading(false);
-            setError(null);
-          });
-          return () => unsubscribe();
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          setIsLoading(false);
-          setError(null);
-        }
-      } catch (error) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setError("Credential is invalid. Please login again.");
-        setIsLoading(false);
-      }
-    };
+    setIsLoading(true);
     bootstrapAsync();
   }, []);
 
-  const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
-  // const responseListener = useRef();
 
   const assignTokenToUser = async (token) => {
     try {
@@ -138,9 +91,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!!user) {
-      if (user.role !== "admin") {
+      if (user.role === "petOwner") {
         registerForPushNotificationsAsync().then(async (token) => {
-          setExpoPushToken(token.data), await assignTokenToUser(token.data);
+          await assignTokenToUser(token.data);
         });
       }
 
@@ -181,21 +134,44 @@ export const AuthProvider = ({ children }) => {
           }
         });
 
-      // responseListener.current =
-      //   Notifications.addNotificationResponseReceivedListener((response) => {
-      //     console.log(response);
-      //     console.log(response.notification.request.content);
-      //   });
-
       return () => {
-        // console.log("Removing listeners...");
         Notifications.removeNotificationSubscription(
           notificationListener.current
         );
-        // Notifications.removeNotificationSubscription(responseListener.current);
       };
     }
   }, [user]);
+
+  const bootstrapAsync = async () => {
+    try {
+      const credential = await SecureStore.getItemAsync("credential");
+      const parsedCredential = JSON.parse(credential);
+      if (parsedCredential) {
+        const email = parsedCredential.email;
+        const password = parsedCredential.password;
+        const userRef = await signInWithEmailAndPassword(auth, email, password);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const collectionRef = collection(db, "users");
+        const docRef = doc(collectionRef, userRef.user.email);
+
+        const unsubscribe = onSnapshot(docRef, async (doc) => {
+          setUser(doc.data());
+          setIsLoading(false);
+          setError(null);
+        });
+        return () => unsubscribe();
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setIsLoading(false);
+        setError(null);
+      }
+    } catch (error) {
+      console.log("Auth", error);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setError("Credential is invalid. Please login again.");
+      setIsLoading(false);
+    }
+  };
 
   const validateLogin = (email, password) => {
     switch (true) {
@@ -222,22 +198,22 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       const userRef = await signInWithEmailAndPassword(auth, email, password);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const collectionRef = collection(db, "users");
       const docRef = doc(collectionRef, userRef.user.email);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUser(docSnap.data());
+
+      const credential = {
+        email: email,
+        password: password,
+      };
+
+      await SecureStore.setItemAsync("credential", JSON.stringify(credential));
+      const unsubscribe = onSnapshot(docRef, async (doc) => {
+        setUser(doc.data());
         setIsSigningIn(false);
         setError(null);
-        const credential = {
-          email: email,
-          password: password,
-        };
-        await SecureStore.setItemAsync(
-          "credential",
-          JSON.stringify(credential)
-        );
-      }
+      });
+      return () => unsubscribe();
     } catch (error) {
       setIsSigningIn(false);
       setError("Credential is invalid. Please login again.");
@@ -268,6 +244,7 @@ export const AuthProvider = ({ children }) => {
         signIn,
         logout,
         error,
+        bootstrapAsync,
       }}
     >
       {children}
