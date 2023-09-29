@@ -4,13 +4,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCDw7kFDM6Vb4dkbAVsiA5naRmeRU2v95s",
-  authDomain: "vet-project-f97eb.firebaseapp.com",
-  projectId: "vet-project-f97eb",
-  storageBucket: "vet-project-f97eb.appspot.com",
-  messagingSenderId: "340488931149",
-  appId: "1:340488931149:web:0f46351bc548e2b54f9904",
-  measurementId: "G-S4MWZ2DCJ5",
+  apiKey: "API key",
+  authDomain: "auth-domain",
+  projectId: "project-id",
+  storageBucket: "storage-bucket",
+  messagingSenderId: "sender id",
+  appId: "appId",
+  measurementId: "device-id",
 };
 
 const app = initializeApp(firebaseConfig);
